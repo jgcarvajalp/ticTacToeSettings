@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/new_game"
+        android:icon="@drawable/new_game"
+        android:title="@string/new_game"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/ai_difficulty"
+        android:icon="@drawable/difficulty_level"
+        android:title="@string/difficulty"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/about"
+        android:icon="@drawable/about"
+        android:title="About"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/quit"
+        android:icon="@drawable/quit_game"
+        android:title="@string/quit"
+        app:showAsAction="always" />
+
+</menu>
