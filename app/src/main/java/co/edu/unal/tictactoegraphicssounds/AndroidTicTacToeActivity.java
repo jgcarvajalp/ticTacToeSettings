@@ -45,8 +45,7 @@ public class AndroidTicTacToeActivity extends AppCompatActivity {
     MediaPlayer mComputerMediaPlayer;
     Handler handler = new Handler();
     private boolean mSoundOn;
-
-
+    private char mComputerTurn;
 
     private int mSelectedIndex;
     ImageView image;
@@ -125,6 +124,8 @@ public class AndroidTicTacToeActivity extends AppCompatActivity {
         mGameOver = false;
     }
 
+
+
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         public boolean onTouch(View v, MotionEvent event) {
 
@@ -138,14 +139,9 @@ public class AndroidTicTacToeActivity extends AppCompatActivity {
                 //If no winner yet, let the computer make a move
                 int winner = mGame.checkForWinner();
                 if(winner == 0){
-                    handler.postDelayed(new Runnable() {
-                        public void run() {
-                            mInfoTextView.setText(R.string.turn_computer);
-                            int move = mGame.getComputerMove();
-                            setMove(TicTacToeGame.COMPUTER_PLAYER, move);
-
-                        }
-                    }, 2000);
+                    mInfoTextView.setText(R.string.turn_computer);
+                    int move = mGame.getComputerMove();
+                    setMove(TicTacToeGame.COMPUTER_PLAYER, move);
                     winner = mGame.checkForWinner();
 
                 }
@@ -159,13 +155,6 @@ public class AndroidTicTacToeActivity extends AppCompatActivity {
                     mGameOver = true;
                     numPlayedGames++;
                 }
-               /* else if(winner == 2){
-                    mInfoTextView.setText(R.string.result_human_wins);
-                    numHumanWon++;
-                    mHumanRes.setText(getResources().getString(R.string.human_won) + numHumanWon);
-                    mGameOver = true;
-                    numPlayedGames++;
-                }*/
                 else if (winner == 2) {
                     numHumanWon++;
                     mHumanRes.setText(R.string.result_human_wins);
@@ -188,23 +177,67 @@ public class AndroidTicTacToeActivity extends AppCompatActivity {
             return false;
         }
 
-        private boolean setMove(char player, int location) {
-            if(mSoundOn){
-                if(player == TicTacToeGame.HUMAN_PLAYER){
-                    mHumanMediaPlayer.start();
-                }else{
-                    mComputerMediaPlayer.start();
-                }
-            }
 
-            if (mGame.setMove(player, location)) {
-                mBoardView.invalidate();   // Redraw the board
-                return true;
-            }
-            return false;
-        }
 
     };
+
+    private boolean setMove(char player, int location) {
+        if(mSoundOn){
+            if(player == TicTacToeGame.HUMAN_PLAYER){
+                mHumanMediaPlayer.start();
+            }
+        }
+
+        if(player == TicTacToeGame.COMPUTER_PLAYER){
+            final int loc = location;
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    mGame.setMove(TicTacToeGame.COMPUTER_PLAYER, loc);
+                    mBoardView.invalidate();   // Redraw the board
+                    if(mSoundOn){
+                        mComputerMediaPlayer.start();
+                    }
+
+
+                    int winner = mGame.checkForWinner();
+                    if (winner == 0) {
+                        mComputerTurn = TicTacToeGame.HUMAN_PLAYER;
+                        mInfoTextView.setText(R.string.turn_human);
+                    }
+                    else if(winner == 1){
+                        mInfoTextView.setText(R.string.result_tie);
+                        numTies++;
+                        mTiesRes.setText(getResources().getString(R.string.num_ties) + numTies);
+                        mGameOver = true;
+                        numPlayedGames++;
+                    }
+                    else if (winner == 2) {
+                        numHumanWon++;
+                        mHumanRes.setText(R.string.result_human_wins);
+                        String defaultMessage = getResources().getString(R.string.result_human_wins);
+                        mInfoTextView.setText(mPrefs.getString("victory_message", defaultMessage));
+                        mGameOver = true;
+                        numPlayedGames++;
+                    }
+                    else{
+                        mInfoTextView.setText(R.string.result_computer_wins);
+                        numAndroidWon++;
+                        mAndroidRes.setText(getResources().getString(R.string.android_won) + numAndroidWon);
+                        mGameOver = true;
+                        numPlayedGames++;
+                    }
+                }
+            }, 1000);
+            return true;
+        }
+
+        if (mGame.setMove(player, location)) {
+            mBoardView.invalidate();   // Redraw the board
+            return true;
+        }
+        return false;
+    }
 
 
     @Override
